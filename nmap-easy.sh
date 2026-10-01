@@ -307,7 +307,9 @@ self_update() {
   [[ -w $dir && -w $self ]] || die "No write permission for $self - try: sudo $SCRIPT_NAME -u"
 
   tmp=$(mktemp "$dir/.${SCRIPT_NAME}.XXXXXX") || die "Cannot create a temporary file in $dir"
-  trap 'rm -f "$tmp"' EXIT
+  # Expand $tmp now: it is a local and will be gone when the EXIT trap runs
+  # shellcheck disable=SC2064
+  trap "rm -f $(printf '%q' "$tmp")" EXIT
 
   info "Checking $UPDATE_URL"
   if command -v curl >/dev/null 2>&1; then
